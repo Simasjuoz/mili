@@ -74,7 +74,7 @@ export default function Home() {
       }
       <div style={{"color":"white"}}>
         {playList.map((a, index) => (
-          <span className={"bg-"+((currenct-1 == index || (index == playList.length-1 && currenct == 0)) ? "green" : "blue")  +"-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-half shadow-lg transition duration-300 ease-in-out transform hover:scale-110 hover:cursor-pointer"}
+          <span className={((currenct-1 == index || (index == playList.length-1 && currenct == 0)) ? "bg-green-500" : "bg-blue-500")+" hover:bg-red-600 text-white font-bold py-2 px-4 rounded-half shadow-lg transition duration-300 ease-in-out transform hover:scale-110 hover:cursor-pointer"}
           onClick={() => remove_sound(index)} key={index}>{(sounds as any)[a][2]}</span>
         ))}
       </div>
