@@ -1,112 +1,91 @@
+"use client";
 import Image from 'next/image'
+import { TagsInput } from "react-tag-input-component"; 
+import { useSearchParams, useRouter  } from 'next/navigation';
+
+import React, { useState } from "react"; 
 
 export default function Home() {
+  var audio = new Audio('correct.mp3');
+  var audio1 = new Audio('final_answer.mp3');
+  var audio2 = new Audio('lets_play.mp3');
+  var audio3 = new Audio('main_theme.mp3');
+  var audio4 = new Audio('question.mp3');
+  const params = useSearchParams()
+  const router = useRouter()
+  var val:string = ""
+  const [sounds, setsounds] = useState({0: [audio, "Correct!", "✅"], 1:[audio1, "Final answer?", "🤔"], 2:[audio2, "Lets play!", "🃏"], 3:[audio3, "Main theme", "🔥"], 4:[audio4, "Question", "❓"]});
+  const [playList, setPlayList] = useState(params.getAll("s").map(e => Number(e)));
+  var current_local = 0
+  const [currenct, setCurrent] = useState(0);
+  function play_sound(id:number){
+    Object.values(sounds).map((key, index) => ( 
+      key[0].load()
+    ))
+
+    sounds[id][0].play()
+  }
+
+  function play_next_sound(){
+    stop_sounds()
+    let next = playList[currenct]
+    sounds[next][0].play()
+
+    if (currenct+1 >= playList.length)
+      setCurrent(0)
+    else
+      setCurrent(currenct+1)
+  } 
+  
+  function stop_sounds(){
+    Object.values(sounds).map((key, index) => ( 
+      key[0].load()
+    ))
+  }
+
+  function remove_sound(index_to_remove:number){
+    setPlayList(playList.filter((a, index) => index != index_to_remove))
+
+    update_queries_remove(index_to_remove)
+  }
+
+  function update_queries_remove(index_to_remove:number){
+    let url = "/?"
+    playList.filter((a, index) => index != index_to_remove).forEach((e) => { url += "s="+String(e) + "&" })
+
+    router.push(url)
+  }
+
+  function update_queries_add(index_to_add:number){
+    let url = "/?"
+    playList.push(index_to_add)
+    playList.forEach((e) => { url += "s="+String(e) + "&" })
+    
+    router.push(url)
+  }
+  
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+
+      {
+        Object.values(sounds).map((key, index) => ( 
+          <div className="flex" key={index}> <button className="bg-blue-300 hover:bg-blue-400 text-white font-bold py-2 px-4 shadow-lg duration-300 ease-in-out transform flex items-center justify-center"
+          onClick={() => play_sound(index)}>{key[1]} ({key[2]}) </button>
+
+          <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 shadow-lg transition duration-300 ease-in-out transform hover:scale-110 flex items-center justify-center"
+        onClick={() => {setPlayList([...playList, index]); update_queries_add(index)}}>    + </button></div> 
+        ))
+      }
+      <div style={{"color":"white"}}>
+        {playList.map((a, index) => (
+          <span className={"bg-"+ ((currenct-1 == index || (index == playList.length-1 && currenct == 0)) ? "green" : "blue") +"-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-half shadow-lg transition duration-300 ease-in-out transform hover:scale-110 hover:cursor-pointer"}
+          onClick={() => remove_sound(index)} key={index}>{sounds[a][2]}</span>
+        ))}
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div className="flex">
+        <button style={{"fontSize":"xxx-large"}} onClick={() => stop_sounds()}>⏸️</button>
+        <button style={{"fontSize":"xxx-large"}} onClick={() => setCurrent(0)}>🔄</button>
+        <button style={{"fontSize":"xxx-large"}} onClick={() => play_next_sound()}>⏭️</button>
       </div>
     </main>
   )
