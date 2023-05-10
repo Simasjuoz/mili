@@ -4,30 +4,28 @@ import { useSearchParams, useRouter  } from 'next/navigation';
 import React, { useState } from "react"; 
 
 export default function Home() {
-  var audio = new Audio('correct.mp3');
-  var audio1 = new Audio('final_answer.mp3');
-  var audio2 = new Audio('lets_play.mp3');
-  var audio3 = new Audio('main_theme.mp3');
-  var audio4 = new Audio('question.mp3');
   const params = useSearchParams()
   const router = useRouter()
-  var val:string = ""
-  const [sounds, setsounds] = useState({0: [audio, "Correct!", "✅"], 1:[audio1, "Final answer?", "🤔"], 2:[audio2, "Lets play!", "🃏"], 3:[audio3, "Main theme", "🔥"], 4:[audio4, "Question", "❓"]});
+  const [sounds, setsounds] = useState({
+  0: [typeof Audio !== "undefined" && new Audio('correct.mp3'), "Correct!", "✅"], 
+  1:[typeof Audio !== "undefined" && new Audio('final_answer.mp3'), "Final answer?", "🤔"], 
+  2:[typeof Audio !== "undefined" && new Audio('lets_play.mp3'), "Lets play!", "🃏"], 
+  3:[typeof Audio !== "undefined" && new Audio('main_theme.mp3'), "Main theme", "🔥"], 
+  4:[typeof Audio !== "undefined" && new Audio('question.mp3'), "Question", "❓"]});
   const [playList, setPlayList] = useState(params.getAll("s").map(e => Number(e)));
-  var current_local = 0
   const [currenct, setCurrent] = useState(0);
   function play_sound(id:number){
-    Object.values(sounds).map((key, index) => ( 
-      key[0].load()
-    ))
+    Object.values(sounds).map((key, index) => (
+      (key[0] as HTMLAudioElement).load()
+    ));
 
-    sounds[id][0].play()
+    (((sounds as any)[id] as any)[0] as HTMLAudioElement).play()
   }
 
   function play_next_sound(){
     stop_sounds()
-    let next = playList[currenct]
-    sounds[next][0].play()
+    let next = playList[currenct];
+    (((sounds as any)[next] as any)[0] as HTMLAudioElement).play()
 
     if (currenct+1 >= playList.length)
       setCurrent(0)
@@ -37,7 +35,7 @@ export default function Home() {
   
   function stop_sounds(){
     Object.values(sounds).map((key, index) => ( 
-      key[0].load()
+      (key[0] as HTMLAudioElement).load()
     ))
   }
 
@@ -68,7 +66,7 @@ export default function Home() {
       {
         Object.values(sounds).map((key, index) => ( 
           <div className="flex" key={index}> <button className="bg-blue-300 hover:bg-blue-400 text-white font-bold py-2 px-4 shadow-lg duration-300 ease-in-out transform flex items-center justify-center"
-          onClick={() => play_sound(index)}>{key[1]} ({key[2]}) </button>
+          onClick={() => play_sound(index)}>{(key as any)[1]} ({(key as any)[2]}) </button>
 
           <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 shadow-lg transition duration-300 ease-in-out transform hover:scale-110 flex items-center justify-center"
         onClick={() => {setPlayList([...playList, index]); update_queries_add(index)}}>    + </button></div> 
@@ -76,8 +74,8 @@ export default function Home() {
       }
       <div style={{"color":"white"}}>
         {playList.map((a, index) => (
-          <span className={"bg-"+ ((currenct-1 == index || (index == playList.length-1 && currenct == 0)) ? "green" : "blue") +"-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-half shadow-lg transition duration-300 ease-in-out transform hover:scale-110 hover:cursor-pointer"}
-          onClick={() => remove_sound(index)} key={index}>{sounds[a][2]}</span>
+          <span className={"bg-"+((currenct-1 == index || (index == playList.length-1 && currenct == 0)) ? "green" : "blue")  +"-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-half shadow-lg transition duration-300 ease-in-out transform hover:scale-110 hover:cursor-pointer"}
+          onClick={() => remove_sound(index)} key={index}>{(sounds as any)[a][2]}</span>
         ))}
       </div>
       <div className="flex">
