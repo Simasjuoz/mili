@@ -1,6 +1,4 @@
 "use client";
-import Image from 'next/image'
-import { TagsInput } from "react-tag-input-component"; 
 import { useSearchParams, useRouter  } from 'next/navigation';
 
 import React, { useState } from "react"; 
